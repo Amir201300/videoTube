@@ -18,6 +18,7 @@ class OrderResource extends JsonResource
     {
         $lang =  Auth::check() ? get_user_lang() : $request->header('lang') ;
         $progress[] =[
+            'task_id'=>null,
             "name" => $lang=="en" ? "Order Received" : "تم استلام الطلب",
             "status"=> (int)$this->status > 1 ? order_task_completed : order_task_not_selected ,
             "data" => null ,
@@ -27,6 +28,7 @@ class OrderResource extends JsonResource
             $service = $item->emp->service ;
             $data = $item->data_file == null? null : getImageUrl("order_data" , $item->data_file);
             $progress[] =[
+              'task_id'=>(int) $item->id,
               "name"=>  $lang == "en" ? $service->name_en : $service->name_ar ,
               "status"=>(int)$item->status,
               "data"  => $data,
@@ -34,6 +36,7 @@ class OrderResource extends JsonResource
             ];
             if($item->status >= order_task_reviewing)
                 $progress[] =[
+                    'task_id'=>(int) $item->id,
                     "name"=>  $lang == "en" ? "Reviewing" : "مراجعة" ,
                     "status"=>$item->status,
                     "data"  => $data,

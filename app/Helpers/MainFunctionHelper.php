@@ -39,7 +39,7 @@ define("translating" , 2 );
 define("voice_over" , 3 );
 
 
- function getOrderStatus($empServiceId){
+ function getOrderStatusOnProgress($empServiceId){
      switch ($empServiceId){
          case writing :
              return order_writing_script;
@@ -51,6 +51,19 @@ define("voice_over" , 3 );
              return order_real_task;
      }
  }
+function getOrderStatusCompleted($empServiceId){
+    switch ($empServiceId){
+        case writing :
+            return order_writing_script_done;
+        case translating:
+            return order_translating_done ;
+        case voice_over:
+            return order_voice_over_done ;
+        default:
+            return order_real_task_done;
+    }
+}
+
 //order Functions
 function is_service_base_service($serviceId){
     return $serviceId <= 3 ;

@@ -162,7 +162,7 @@ class EmployeeController extends Controller
         $orderTask->status = order_task_on_progress ;
         $orderTask->save();
 
-        $order->status = getOrderStatus($empServiceId) ;
+        $order->status = getOrderStatusOnProgress($empServiceId) ;
         $order->save();
 
         $msg = $lang == "en" ? "Order Assgined To the user" .$user->name : "تم تعيين الطلب للموظف  " .$user->name ;

@@ -34,7 +34,7 @@ $orders=\App\Models\Order::orderBy('id','desc')->take(7)->get();
                         <td>
                             <div class="d-flex align-items-center">
                                 <div class="m-r-10">
-                                    <a class="btn btn-circle btn-{{getOrderStatus($row->status)[1]}} text-white">{{$row->id}}</a>
+                                    <a class="btn btn-circle btn-{{getOrderStatusOnProgress($row->status)[1]}} text-white">{{$row->id}}</a>
                                 </div>
                                 <div class="">
                                     <h4 class="m-b-0 font-16">{{$row->user->firstName . ' ' . $row->user->lastName}}</h4>
@@ -50,7 +50,7 @@ $orders=\App\Models\Order::orderBy('id','desc')->take(7)->get();
                             <h5 class="m-b-0">{{$row->created_at}}</h5>
                         </td>
                         <td>
-                            <label class="label label-{{getOrderStatus($row->status)[1]}} ">{{getOrderStatus($row->status)[0]}} </label>
+                            <label class="label label-{{getOrderStatusOnProgress($row->status)[1]}} ">{{getOrderStatusOnProgress($row->status)[0]}} </label>
                         </td>
                     </tr>
                         @endforeach

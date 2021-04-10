@@ -8,6 +8,7 @@ use App\Interfaces\UserInterface;
 use App\Models\Employee;
 use App\Models\Employee_exprince;
 use App\Models\Order;
+use App\Models\OrderProgress;
 use App\Reposatries\OrderRepo;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -41,6 +42,28 @@ class OrderController extends Controller
             return $this->apiResponseMessage(0,$msg,200);
         }
         return $this->apiResponseData(new OrderResource($order),'',200);
+    }
+
+    public function acceptReview(Request $request){
+        $lang = get_user_lang() ;
+        $user = Auth::user() ;
+        $task = OrderProgress::find($request->task_id);
+        $empServiceId = $task->emp->service->id ;
+        $check = $this->not_found($task , "الطلب" , "Order" ,$lang);
+        if($check) return $check ;
+        $order = Order::find($task->order_id);
+        if($order->user_id != $user->id){
+            $msg = $lang == "en" ? "this Order not assigned for this user" :"هذا الطلب ليس لنفس المستخدم" ;
+            return  $this->apiResponseMessage(0 , $msg);
+        }
+        $task->status = order_task_completed ;
+        $task->save();
+
+        $order->status = getOrderStatusCompleted($empServiceId);
+        $order->save() ;
+
+        $msg = $lang == "en" ?"Task Accepted" :"تم قبول الطلب" ;
+        return  $this->apiResponseMessage(1 , $msg);
     }
 
 }

@@ -52,6 +52,7 @@ Route::middleware('auth:api')->group(function () {
     Route::prefix('Order')->group(function()
     {
         Route::post('/makeOrder', 'OrderController@makeOrder')->name('Order.makeOrder');
+        Route::post('/accept_review', 'OrderController@acceptReview');
         Route::get('/singleOrder', 'OrderController@singleOrder')->name('Order.singleOrder');
     });
 
