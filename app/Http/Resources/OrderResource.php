@@ -17,8 +17,32 @@ class OrderResource extends JsonResource
     public function toArray($request)
     {
         $lang =  Auth::check() ? get_user_lang() : $request->header('lang') ;
-        return [
+        $progress[] =[
+            "name" => $lang=="en" ? "Order Received" : "تم استلام الطلب",
+            "status"=> (int)$this->status > 1 ? order_task_completed : order_task_not_selected ,
+            "data" => null ,
+            "emp"=> null
+        ];
+        foreach($this->tasks as $item){
+            $service = $item->emp->service ;
+            $data = $item->data_file == null? null : getImageUrl("order_data" , $item->data_file);
+            $progress[] =[
+              "name"=>  $lang == "en" ? $service->name_en : $service->name_ar ,
+              "status"=>(int)$item->status,
+              "data"  => $data,
+              "emp"=>new EmployeeResource($item->emp)
+            ];
+            if($item->status >= order_task_reviewing)
+                $progress[] =[
+                    "name"=>  $lang == "en" ? "Reviewing" : "مراجعة" ,
+                    "status"=>$item->status,
+                    "data"  => $data,
+                    "emp"=>new EmpOrdersResource($item->emp)
+                ];
+        }
+        $data =  [
             'id' => $this->id,
+            'progress'=>$progress,
             'totalPrice' => $this->price,
             'textPrice' => $this->textPrice,
             'sizePrice' => $this->sizePrice,
@@ -54,5 +78,8 @@ class OrderResource extends JsonResource
             'voiceModelArabic_id' => $this->voiceModelArabic ? new VoiceOverModelResource($this->voiceModelArabic) : null,
 
         ];
+
+
+        return $data ;
     }
 }

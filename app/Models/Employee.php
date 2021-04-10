@@ -19,4 +19,15 @@ class Employee extends Model
     public function service(){
         return $this->belongsTo(EmployeeService::class,'service_id');
     }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function user(){
+        return $this->belongsTo(User::class,'user_id');
+    }
+
+    public function orders(){
+        return $this->belongsToMany(Order::class , OrderEmp::class , "emp_id" , "order_id")->withPivot('status' , 'payment_status');
+    }
 }

@@ -61,4 +61,15 @@ class Order extends Model
     public function socialLinks(){
         return $this->hasMany(OrderSocial::class,'order_id');
     }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\belongsToMany
+     */
+    public function employees(){
+        return $this->belongsToMany(Employee::class , OrderEmp::class , "order_id" , "emp_id")->withPivot('status' , 'payment_status' ,'data_file');
+    }
+
+    public function tasks(){
+        return $this->hasMany(OrderProgress::class , "order_id");
+    }
 }

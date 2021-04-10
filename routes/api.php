@@ -41,6 +41,10 @@ Route::middleware('auth:api')->group(function () {
     Route::prefix('Employee')->group(function()
     {
         Route::post('/apply', 'EmployeeController@apply')->name('Employee.apply');
+        Route::get('/available_tasks', 'EmployeeController@getAvailableTasks');
+        Route::post('/accept_task', 'EmployeeController@assignUserToOrder');
+        Route::get('/get_assigned_tasks', 'EmployeeController@getAssignedTasks');
+        Route::post('/submit_task', 'EmployeeController@submitTask');
         Route::get('/myApplication', 'EmployeeController@myApplication')->name('Employee.myApplication');
     });
 

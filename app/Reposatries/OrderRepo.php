@@ -131,6 +131,7 @@ class OrderRepo  {
             $price += $service->voiceOverPricePerMinute * $order->numberOfMinutes;
             $order->voicePrice += $service->voiceOverPricePerMinute * $order->numberOfMinutes;
         }
+
         if($order->haveText == 1) {
             $textPrice=$service->textPricePerMinute * $order->numberOfMinutes;
             $order->textPrice=$textPrice;

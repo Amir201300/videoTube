@@ -3,15 +3,21 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Resources\EmployeeResource;
+use App\Http\Resources\EmpOrdersResource;
+use App\Http\Resources\OrderResource;
 use App\Interfaces\UserInterface;
 use App\Models\Employee;
 use App\Models\Employee_exprince;
+use App\Models\Order;
+use App\Models\OrderProgress;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Validator, Auth, Artisan, Hash, File, Crypt;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Http\Controllers\Manage\EmailsController;
+
+
 
 class EmployeeController extends Controller
 {
@@ -107,6 +113,87 @@ class EmployeeController extends Controller
     public function myApplication(Request $request){
         $user=AUth::user();
         return $this->apiResponseData(new EmployeeResource($user->employee),'success',200);
+    }
+
+    public function getAvailableTasks(Request $request){
+        $lang = get_user_lang();
+        $user = Auth::user() ;
+        if(!is_null($user->employee->service->main_service))
+        $mainServiceId  = $user->employee->service->mainService->id ;
+        $serviceId = $user->employee->service->id ;
+        $orders = null ;
+        if($serviceId == writing) {
+            $orders = Order::where("status", order_new)->where("haveText", 0);
+        }elseif($serviceId == translating)
+            $orders = Order::where(function ($q){
+              $q->where("status" , order_new)->where("haveText" , 1 )->where("projectLang" , ">=" , 3);
+        })->orWhere(function($q){
+            $q->where("status" , order_writing_script_done);
+            });
+        elseif($serviceId == voice_over)
+            $orders = Order::where(function ($q){
+                $q->where('status' , order_new)->where("haveText")->where('projectLang' , "<=" , 2);
+            })->orWhere("status", order_translating_done);
+        else
+            $orders = Order::where("status" , order_voice_over_done)->where("service_id" , $mainServiceId);
+
+        $orders = OrderResource::collection($orders->get());
+
+        $msg = $lang == "en" ? "data Optained Successfully" : "تم استرجاع المعلومات بنجاح" ;
+
+        return $this->apiResponseData($orders , $msg) ;
+    }
+
+    public function assignUserToOrder(Request $request ){
+        $lang = get_user_lang() ;
+        $user = Auth::user();
+        $empServiceId = $user->employee->service->id;
+        $order = Order::find($request->order_id) ;
+        $check = $this->not_found($order , "الطلب" , "Order" ,$lang);
+        if($check)return $check;
+        $orderOnProgressCunt = OrderProgress::where("emp_id",$user->id)->where("status" ,"!=" , order_task_completed)->count();
+        if($orderOnProgressCunt > 0){
+            $msg = $lang == "en" ? "You Can't Accept Other Order Till you finish " :"لا يمكنك قبول طلبات اخري الي ان تنتهي" ;
+            return  $this->apiResponseMessage(0 , $msg);
+        }
+        $orderTask = new OrderProgress() ;
+        $orderTask->order_id = $order->id ;
+        $orderTask->emp_id = $user->employee->id ;
+        $orderTask->status = order_task_on_progress ;
+        $orderTask->save();
+
+        $order->status = getOrderStatus($empServiceId) ;
+        $order->save();
+
+        $msg = $lang == "en" ? "Order Assgined To the user" .$user->name : "تم تعيين الطلب للموظف  " .$user->name ;
+
+        return $this->apiResponseData($orderTask , $msg);
+    }
+
+    public function getAssignedTasks(Request $request){
+        $lang = get_user_lang();
+        $user = Auth::user();
+        $orders = OrderProgress::where("emp_id" , $user->id)->with(['order'])->get();
+        $orders = EmpOrdersResource::collection($orders) ;
+        $msg = $lang == "en" ?"data Optained SuccessFully" : "تم استرجاع المعلومات بنجاح";
+        return $this->apiResponseData($orders , $msg);
+
+    }
+
+    public function submitTask(Request $request ){
+        $lang = get_user_lang() ;
+        $user = Auth::user();
+        $task = OrderProgress::find($request->task_id) ;
+        $check = $this->not_found($task , "الطلب" , "Order" ,$lang);
+        if($check)return $check;
+        $task->status = order_task_reviewing ;
+        if($request->data_file){
+            deleteFile("order_data" , $task->order_file);
+            $task->data_file =  saveImage("order_data" , $request->file("data_file"));
+        }
+        $task->save();
+        $msg = $lang == "en" ? "Order Send to Review team" : "تم ارسال التاسك للمرجعة";
+        return $this->apiResponseData($task , $msg);
     }
 
 }
