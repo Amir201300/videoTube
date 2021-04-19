@@ -79,10 +79,7 @@ class OrderResource extends JsonResource
             'socialLinks' => OrderSocialResource::collection($this->socialLinks),
             'voiceModelEnglish_id' => $this->voiceModelEnglish ? new VoiceOverModelResource($this->voiceModelEnglish) : null,
             'voiceModelArabic_id' => $this->voiceModelArabic ? new VoiceOverModelResource($this->voiceModelArabic) : null,
-
         ];
-
-
         return $data ;
     }
 }

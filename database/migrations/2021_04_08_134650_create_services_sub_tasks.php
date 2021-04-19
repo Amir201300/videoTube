@@ -16,8 +16,7 @@ class CreateServicesSubTasks extends Migration
         Schema::create('services_sub_tasks', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedInteger("service_id")->nullable(false);
-            $table->foreign("service_id")->references("id")->on("services");
-            $table->foreign("emp_service_id")->references("id")->on("employee_services");
+            $table->unsignedInteger("emp_service_id")->nullable(false);
             $table->tinyInteger("status")->default(0);
             $table->tinyInteger("payment_status")->default(0)->comment("0=> not_paid , 1=> paid");
             $table->timestamps();

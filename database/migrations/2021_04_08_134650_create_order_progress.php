@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateServicesSubTasks extends Migration
+class CreateOrderProgress extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,10 @@ class CreateServicesSubTasks extends Migration
      */
     public function up()
     {
-        Schema::create('services_sub_tasks', function (Blueprint $table) {
+        Schema::create('order_progress', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedInteger("order_id")->nullable(false);
-            $table->foreign("emp_id")->references("id")->on("services");
-            $table->foreign("status")->references("id")->on("employee_services");
+            $table->unsignedInteger("emp_id")->nullable();
             $table->tinyInteger("payment_status")->default(0);
             $table->timestamps();
         });

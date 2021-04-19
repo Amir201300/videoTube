@@ -115,6 +115,10 @@ class EmployeeController extends Controller
         return $this->apiResponseData(new EmployeeResource($user->employee),'success',200);
     }
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function getAvailableTasks(Request $request){
         $lang = get_user_lang();
         $user = Auth::user() ;
@@ -136,14 +140,15 @@ class EmployeeController extends Controller
             })->orWhere("status", order_translating_done);
         else
             $orders = Order::where("status" , order_voice_over_done)->where("service_id" , $mainServiceId);
-
         $orders = OrderResource::collection($orders->get());
-
         $msg = $lang == "en" ? "data Optained Successfully" : "تم استرجاع المعلومات بنجاح" ;
-
         return $this->apiResponseData($orders , $msg) ;
     }
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\JsonResponse|\Illuminate\Http\Response
+     */
     public function assignUserToOrder(Request $request ){
         $lang = get_user_lang() ;
         $user = Auth::user();
@@ -170,6 +175,10 @@ class EmployeeController extends Controller
         return $this->apiResponseData($orderTask , $msg);
     }
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function getAssignedTasks(Request $request){
         $lang = get_user_lang();
         $user = Auth::user();
@@ -180,6 +189,10 @@ class EmployeeController extends Controller
 
     }
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function submitTask(Request $request ){
         $lang = get_user_lang() ;
         $user = Auth::user();
